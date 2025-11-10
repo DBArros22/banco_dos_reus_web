@@ -1,0 +1,189 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #0d0d0d; /* fundo preto moderno */
+  margin: 0;
+  padding: 0;
+  color: #fff;
+}
+
+/* ===== HEADER ===== */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #121212; /* preto grafite */
+  color: #ffb066; /* laranja suave */
+  padding: 15px 25px;
+  border-bottom: 2px solid #ff7b00;
+  box-shadow: 0 0 10px rgba(255, 123, 0, 0.2);
+}
+
+header h1 {
+  font-size: 1.5rem;
+  color: #ffb066;
+  letter-spacing: 1px;
+}
+
+/* ===== PERFIL (foto + menu) ===== */
+.profile-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: auto;
+  padding-right: 20%; /* 🔸 adiciona espaço da borda direita */
+}
+
+.profile-container {
+  position: relative;
+  padding-left: 10%; /* 🔸 garante que o botão não saia do limite */
+}
+
+.profile-container img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  object-fit: cover;
+  border: 2px solid #ff7b00;
+  transition: 0.3s;
+}
+
+.profile-container img:hover {
+  transform: scale(1.05);
+}
+
+/* ===== MENU DE PERFIL ===== */
+.profile-menu {
+  display: none;
+  position: absolute;
+  top: 60px;
+  right: -60;
+  background: #1a1a1a;
+  color: #ffb066;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(255, 123, 0, 0.3);
+  padding: 10px;
+  z-index: 10;
+  border: 1px solid #ff7b00;
+  min-width: 180px;
+}
+
+.profile-menu.active {
+  display: block;
+}
+
+.profile-menu button {
+  display: block;
+  background: none;
+  border: none;
+  padding: 10px 15px;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  color: #ffb066;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.profile-menu button:hover {
+  background: #ff7b00;
+  color: #000;
+  border-radius: 6px;
+}
+
+/* ===== FEED ===== */
+#feed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+/* ===== ANÚNCIO DESTAQUE ===== */
+.anuncio-destaque {
+  width: 80%;
+  max-width: 700px;
+  background: #1a1a1a;
+  border: 1px solid #ff7b00;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(255, 123, 0, 0.25);
+  margin-bottom: 40px;
+  padding: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  transition: 0.3s;
+}
+
+.anuncio-destaque:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 18px rgba(255, 123, 0, 0.4);
+}
+
+.anuncio-destaque .foto-anuncio img {
+  width: 180px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid #ff7b00;
+}
+
+.anuncio-destaque .conteudo-anuncio {
+  flex: 1;
+}
+
+.anuncio-destaque h3 {
+  margin: 0;
+  color: #ffb066;
+}
+
+.anuncio-destaque p {
+  color: #ccc;
+  margin: 6px 0;
+}
+
+/* ===== OUTROS ANÚNCIOS ===== */
+.card-anuncio {
+  width: 70%;
+  max-width: 600px;
+  background: #121212;
+  border-radius: 10px;
+  border: 1px solid #ff7b00;
+  box-shadow: 0 0 8px rgba(255, 123, 0, 0.2);
+  margin-bottom: 25px;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  padding: 15px;
+  transition: 0.3s;
+}
+
+.card-anuncio:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 14px rgba(255, 123, 0, 0.3);
+}
+
+.card-anuncio img {
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #ff7b00;
+}
+
+.card-anuncio h4 {
+  color: #ffb066;
+  margin: 0;
+}
+
+.card-anuncio p {
+  color: #ccc;
+  margin: 4px 0;
+}
+
+.card-anuncio span {
+  font-size: 0.9em;
+  color: #999;
+}
+
