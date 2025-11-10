@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | Banco dos Réus</title>
+<link rel="stylesheet" href="login.css">
+</head>
+<body>
+<div class="container">
+  <h1>Login</h1>
+
+  <label>Entrar como:</label>
+  <select id="tipoLogin">
+    <option value="">-- Escolha --</option>
+    <option value="advogado">Advogado</option>
+    <option value="cliente">Solicitante</option>
+  </select>
+
+  <form id="formLogin" style="display:none;">
+    <input type="email" id="emailLogin" placeholder="Email" required>
+    <input type="password" id="senhaLogin" placeholder="Senha" required>
+    <div class="botoes">
+      <button type="submit" class="entrarBtn">Entrar</button>
+      <button type="button" id="voltarLoginBtn" class="voltarBtn">Voltar</button>
+    </div>
+  </form>
+</div>
+<script src="login.js"></script>
+</body>
+</html>
