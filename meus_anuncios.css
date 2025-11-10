@@ -1,0 +1,180 @@
+/* === ESTILO GERAL === */
+body {
+  font-family: "Poppins", sans-serif;
+  background: #0b0b0b;
+  margin: 0;
+  padding: 20px;
+  color: #fff;
+}
+
+/* === CONTAINER PRINCIPAL === */
+.container {
+  max-width: 600px;
+  background: #121212;
+  margin: 0 auto;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(255, 140, 0, 0.2);
+  border: 1px solid #ff7b00;
+}
+
+/* === CARD DE EDIÇÃO === */
+.card-editar {
+  text-align: center;
+}
+
+.fotoEditar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin-bottom: 15px;
+  border: 2px solid #ff7b00;
+  object-fit: cover;
+  transition: 0.3s;
+}
+
+.fotoEditar:hover {
+  transform: scale(1.05);
+}
+
+/* === CAMPOS DE INPUT === */
+input,
+textarea {
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #333;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 0.95rem;
+  transition: 0.3s;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #ff7b00;
+  box-shadow: 0 0 6px rgba(255, 140, 0, 0.4);
+}
+
+/* === BOTÕES === */
+button {
+  margin: 6px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: 0.3s;
+  font-weight: 500;
+}
+
+/* Botão Salvar */
+#btnSalvar {
+  background: #ff7b00;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(255, 140, 0, 0.2);
+}
+
+#btnSalvar:hover {
+  background: #ff9a33;
+  box-shadow: 0 0 12px rgba(255, 154, 51, 0.4);
+}
+
+/* Botão Excluir */
+#btnExcluir {
+  background: #b32525;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.2);
+}
+
+#btnExcluir:hover {
+  background: #d63333;
+  box-shadow: 0 0 12px rgba(255, 0, 0, 0.3);
+}
+
+/* === SEÇÃO MEU ANÚNCIO DESTACADO === */
+.meu-anuncio-destaque {
+  background: #1a1a1a;
+  padding: 25px;
+  margin: 30px auto;
+  border-radius: 15px;
+  width: 60%;
+  text-align: center;
+  box-shadow: 0 0 15px rgba(255, 140, 0, 0.2);
+  border: 1px solid #ff7b00;
+  transition: 0.3s;
+}
+
+.meu-anuncio-destaque:hover {
+  transform: scale(1.01);
+  box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
+}
+
+.fotoDestaque {
+  width: 120px;
+  height: 120px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  border: 2px solid #ff7b00;
+  object-fit: cover;
+}
+
+/* === LISTAGEM DE OUTROS ANÚNCIOS === */
+.card-anuncio {
+  background: #121212;
+  padding: 15px;
+  margin: 10px;
+  border-radius: 10px;
+  display: inline-block;
+  width: 250px;
+  vertical-align: top;
+  text-align: center;
+  box-shadow: 0 0 8px rgba(255, 140, 0, 0.2);
+  border: 1px solid #ff7b00;
+  transition: 0.3s;
+}
+
+.card-anuncio:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 15px rgba(255, 140, 0, 0.4);
+}
+
+.card-anuncio img {
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  border: 2px solid #ff9a33;
+  object-fit: cover;
+}
+
+.card-anuncio h3 {
+  margin: 8px 0 4px;
+  color: #ffb066;
+}
+
+.card-anuncio p {
+  color: #ccc;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 600px) {
+  .container {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .meu-anuncio-destaque {
+    width: 90%;
+  }
+
+  .card-anuncio {
+    width: 90%;
+    display: block;
+    margin: 15px auto;
+  }
+}
