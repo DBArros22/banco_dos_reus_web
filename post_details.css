@@ -1,0 +1,107 @@
+/* === Estilo principal === */
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #0e0e0e;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+/* === Cabeçalho === */
+header {
+  background-color: #111;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  border-bottom: 2px solid #ff7b00;
+}
+
+header h1 {
+  color: #ff7b00;
+  font-size: 1.5em;
+  margin: 0;
+}
+
+/* === Botão Voltar no topo === */
+#voltar {
+  background-color: transparent;
+  color: #ff7b00;
+  border: 1px solid #ff7b00;
+  border-radius: 8px;
+  padding: 6px 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#voltar:hover {
+  background-color: #ff7b00;
+  color: #000;
+}
+
+/* === Área central de detalhes === */
+.detalhe-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 85vh;
+  padding: 20px;
+}
+
+/* === Cartão do perfil === */
+.perfil-detalhado {
+  background-color: #1a1a1a;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(255, 123, 0, 0.2);
+  padding: 30px;
+  max-width: 500px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.perfil-detalhado:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 30px rgba(255, 123, 0, 0.3);
+}
+
+/* === Foto do advogado === */
+.foto-detalhe {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ff7b00;
+  margin-bottom: 20px;
+}
+
+/* === Textos === */
+.perfil-detalhado h2 {
+  color: #ff7b00;
+  margin-bottom: 10px;
+  font-size: 1.4rem;
+}
+
+.perfil-detalhado p {
+  margin: 10px 0;
+  font-size: 1rem;
+  color: #ddd;
+  line-height: 1.5;
+}
+
+/* === Botão de WhatsApp === */
+.botao-whatsapp {
+  display: inline-block;
+  margin-top: 20px;
+  background-color: #ff7b00;
+  color: #000;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.botao-whatsapp:hover {
+  background-color: #ff9d2a;
+  transform: scale(1.05);
+}
