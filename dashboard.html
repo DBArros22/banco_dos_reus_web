@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feed | Banco dos Réus</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <header>
+    <div class="profile-wrapper">
+      <div class="profile-container" id="fotoPerfil">
+        <!-- Foto do perfil -->
+        <img id="imgPerfil" src="imagens/default-user.png" alt="Configurações de Perfil">
+
+        <!-- Input oculto para alterar foto -->
+        <input type="file" id="inputFoto" accept="image/*" style="display: none;">
+
+        <!-- Menu do perfil -->
+        <div class="profile-menu" id="menuPerfil">
+          <button id="btnMeusAnuncios">Meus Anúncios</button>
+          <button id="btnAlterarFoto">Alterar Foto</button>
+          <button id="btnLogout">Sair</button>
+        </div>
+      </div>
+    </div>
+
+    <h1>Banco dos Réus</h1>
+  </header>
+
+  <main>
+    <section id="feed">
+      <!-- anúncios dinâmicos -->
+    </section>
+  </main>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
