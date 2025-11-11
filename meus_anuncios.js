@@ -1,201 +1,140 @@
-// cadastro.js — versão otimizada e compatível com desktop e celular
+// meus_anuncios_adv.js — permite ao advogado visualizar/editar seu anúncio
+// mantém telefone, registroOAB e foto sincronizados com localStorage
+
 document.addEventListener("DOMContentLoaded", () => {
-  const tipoCadastro = document.getElementById("tipoCadastro");
-  const camposExtras = document.getElementById("camposExtras");
-  const formCadastro = document.getElementById("formCadastro");
-  const voltarBtn = document.getElementById("voltarBtn");
+  const usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+  const container = document.getElementById("meuAnuncio");
 
-  // 🔹 Atualiza campos extras conforme o tipo
-  tipoCadastro.addEventListener("change", () => {
-    const tipo = tipoCadastro.value;
-    formCadastro.style.display = tipo ? "block" : "none";
-    atualizarCamposExtras(tipo);
+  if (!usuario || usuario.tipo !== "advogado") {
+    alert("Acesso restrito!");
+    window.location.href = "dashboard.html";
+    return;
+  }
+
+  let anuncios = JSON.parse(localStorage.getItem("anuncios")) || [];
+
+  // localizar por id ou email
+  let anuncio = anuncios.find(a => (a.id && a.id === usuario.id) || (a.email && a.email === usuario.email));
+
+  if (!anuncio) {
+    // cria um anúncio inicial baseado no usuário (mantendo compatibilidade)
+    anuncio = {
+      id: usuario.id || Date.now(),
+      nome: usuario.nome || "",
+      especialidade: usuario.especialidade || "",
+      portfolio: usuario.portfolio || "",
+      foto: usuario.foto || localStorage.getItem("fotoPerfil") || "imagens/default-user.png",
+      email: usuario.email,
+      tipo: "advogado",
+      telefone: usuario.telefone || "",
+      registroOAB: usuario.registroOAB || ""
+    };
+
+    // remove duplicatas e adiciona
+    anuncios = anuncios.filter(a => !(a && a.email === anuncio.email));
+    anuncios.push(anuncio);
+    localStorage.setItem("anuncios", JSON.stringify(anuncios));
+  }
+
+  // Monta a interface de edição (telefone e registro OAB editáveis)
+  container.innerHTML = `
+    <div class="card-editar">
+      <img src="${anuncio.foto}" class="fotoEditar" id="fotoEditar">
+
+      <label>Nome:</label>
+      <input type="text" id="editNome" value="${anuncio.nome}">
+
+      <label>Especialidade:</label>
+      <input type="text" id="editEspecialidade" value="${anuncio.especialidade}">
+
+      <label>Descrição / Portfólio:</label>
+      <textarea id="editPortfolio">${anuncio.portfolio || ""}</textarea>
+
+      <label>Telefone:</label>
+      <input type="text" id="editTelefone" value="${anuncio.telefone || ""}" placeholder="(XX) XXXXX-XXXX">
+
+      <label>Registro OAB:</label>
+      <input type="text" id="editRegistroOAB" value="${anuncio.registroOAB || ""}" placeholder="Número da OAB">
+
+      <label>Alterar Foto:</label>
+      <input type="file" id="inputFotoAnuncio" accept="image/*">
+
+      <button id="btnSalvar">Salvar Alterações</button>
+      <button id="btnExcluir">Excluir Anúncio</button>
+    </div>
+  `;
+
+  // Elementos
+  const inputFotoAnuncio = document.getElementById("inputFotoAnuncio");
+  const fotoEditar = document.getElementById("fotoEditar");
+
+  // Alterar foto localmente antes de salvar
+  inputFotoAnuncio.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const novaFoto = e.target.result;
+      fotoEditar.src = novaFoto;
+      anuncio.foto = novaFoto;
+    };
+    reader.readAsDataURL(file);
   });
 
-  function atualizarCamposExtras(tipo) {
-    if (tipo === "advogado") {
-      camposExtras.innerHTML = `
-        <label for="telefone">Telefone:</label>
-        <input type="tel" id="telefone" inputmode="tel" placeholder="(XX) XXXXX-XXXX" required>
+  // Salvar alterações (sincroniza usuarioLogado e array anuncios)
+  document.getElementById("btnSalvar").addEventListener("click", () => {
+    anuncio.nome = document.getElementById("editNome").value.trim();
+    anuncio.especialidade = document.getElementById("editEspecialidade").value.trim();
+    anuncio.portfolio = document.getElementById("editPortfolio").value.trim();
+    anuncio.telefone = document.getElementById("editTelefone").value.trim();
+    anuncio.registroOAB = document.getElementById("editRegistroOAB").value.trim();
+    anuncio.foto = anuncio.foto || usuario.foto || localStorage.getItem("fotoPerfil") || "imagens/default-user.png";
 
-        <label for="especialidade">Especialidade:</label>
-        <input type="text" id="especialidade" placeholder="Ex: Direito Civil" list="listaEspecialidades" required>
-        <datalist id="listaEspecialidades">
-          <option value="Civil">
-          <option value="Criminal">
-          <option value="Trabalhista">
-          <option value="Previdenciário">
-          <option value="Tributário">
-          <option value="Penal">
-        </datalist>
+    // Atualiza usuarioLogado
+    usuario.nome = anuncio.nome;
+    usuario.especialidade = anuncio.especialidade;
+    usuario.portfolio = anuncio.portfolio;
+    usuario.telefone = anuncio.telefone;
+    usuario.registroOAB = anuncio.registroOAB;
+    usuario.foto = anuncio.foto;
 
-        <label for="registroOAB">Registro OAB:</label>
-        <input type="text" id="registroOAB" placeholder="Número da OAB" required>
+    localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
+    localStorage.setItem("fotoPerfil", usuario.foto);
 
-        <label for="portfolio">Portfólio / apresentação:</label>
-        <textarea id="portfolio" rows="2" placeholder="Descreva seu trabalho"></textarea>
-
-        <label for="fotoCadastro">Foto:</label>
-        <input type="file" id="fotoCadastro" accept="image/*">
-      `;
-    } else if (tipo === "cliente") {
-      camposExtras.innerHTML = `
-        <label for="telefone">Telefone:</label>
-        <input type="tel" id="telefone" inputmode="tel" placeholder="(XX) XXXXX-XXXX" required>
-
-        <label for="fotoCadastro">Foto:</label>
-        <input type="file" id="fotoCadastro" accept="image/*">
-      `;
+    // Atualiza array anuncios sem duplicar
+    let anunciosAtuais = JSON.parse(localStorage.getItem("anuncios")) || [];
+    const index = anunciosAtuais.findIndex(a => (a.id && a.id === usuario.id) || (a.email && a.email === usuario.email));
+    if (index !== -1) {
+      anunciosAtuais[index] = { ...anuncio, tipo: "advogado" };
     } else {
-      camposExtras.innerHTML = "";
-    }
-  }
-
-  // 🔹 Botão voltar
-  if (voltarBtn) {
-    voltarBtn.addEventListener("click", () => {
-      window.location.href = "index.html";
-    });
-  }
-
-  // 🔹 Helper: lê imagem e converte em base64
-  const getFotoDataURL = (file) => {
-    return new Promise((resolve) => {
-      if (!file) return resolve("imagens/default-user.png");
-      const reader = new FileReader();
-      reader.onload = (ev) => resolve(ev.target.result);
-      reader.readAsDataURL(file);
-    });
-  };
-
-  // 🔹 Tentativa segura de setItem no localStorage (evita erro de quota cheia)
-  function salvarSeguro(chave, valor) {
-    try {
-      localStorage.setItem(chave, JSON.stringify(valor));
-    } catch (e) {
-      console.warn("⚠️ Limite do localStorage atingido. Limpando dados antigos...");
-      localStorage.clear();
-      localStorage.setItem(chave, JSON.stringify(valor));
-    }
-  }
-
-  // 🔹 Envio do formulário
-  formCadastro.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const nome = document.getElementById("nomeCadastro").value.trim();
-    const email = document.getElementById("emailCadastro").value.trim();
-    const senha = document.getElementById("senhaCadastro").value.trim();
-    const tipo = tipoCadastro.value;
-
-    if (!nome || !email || !senha || !tipo) {
-      alert("Preencha todos os campos obrigatórios!");
-      return;
+      anunciosAtuais.push({ ...anuncio, tipo: "advogado" });
     }
 
-    const fotoInput = document.getElementById("fotoCadastro");
-    const foto = fotoInput && fotoInput.files.length > 0
-      ? await getFotoDataURL(fotoInput.files[0])
-      : "imagens/default-user.png";
+    // normalize: remove duplicatas por email
+    anunciosAtuais = anunciosAtuais.filter((a, idx, arr) => idx === arr.findIndex(x => x.email === a.email));
+    localStorage.setItem("anuncios", JSON.stringify(anunciosAtuais));
 
-    if (tipo === "advogado") {
-      const telefone = document.getElementById("telefone").value.trim();
-      const especialidade = document.getElementById("especialidade").value.trim();
-      const registroOAB = document.getElementById("registroOAB").value.trim();
-      const portfolio = document.getElementById("portfolio").value.trim();
+    alert("Anúncio salvo e publicado no feed!");
+    // volta para dashboard onde feed irá refletir as alterações
+    window.location.href = "dashboard.html";
+  });
 
-      let advogados;
-      try {
-        advogados = JSON.parse(localStorage.getItem("advogados")) || [];
-      } catch {
-        advogados = [];
-      }
-
-      if (advogados.some((a) => a.email === email)) {
-        alert("Este e-mail já está cadastrado como advogado.");
-        return;
-      }
-
-      const novoAdv = {
-        id: Date.now(),
-        nome,
-        email,
-        senha,
-        telefone,
-        especialidade,
-        registroOAB,
-        portfolio,
-        foto,
-        tipo,
-      };
-
-      advogados.push(novoAdv);
-      salvarSeguro("advogados", advogados);
-
-      // Publica no feed
-      let anuncios;
-      try {
-        anuncios = JSON.parse(localStorage.getItem("anuncios")) || [];
-      } catch {
-        anuncios = [];
-      }
-
-      const anuncioDoNovo = {
-        id: novoAdv.id,
-        nome: novoAdv.nome,
-        especialidade: novoAdv.especialidade,
-        portfolio: novoAdv.portfolio,
-        email: novoAdv.email,
-        foto: novoAdv.foto,
-        telefone: novoAdv.telefone,
-        registroOAB: novoAdv.registroOAB,
-        tipo: novoAdv.tipo,
-      };
-
-      anuncios = anuncios.filter(
-        (a) => a && a.email !== novoAdv.email && a.id !== novoAdv.id
-      );
-      anuncios.push(anuncioDoNovo);
-      salvarSeguro("anuncios", anuncios);
-
-      // Login automático
-      salvarSeguro("usuarioLogado", novoAdv);
-      localStorage.setItem("fotoPerfil", novoAdv.foto);
-
-      alert("✅ Cadastro de advogado realizado com sucesso!");
-      window.location.href = "dashboard.html";
-    } else if (tipo === "cliente") {
-      const telefone = document.getElementById("telefone").value.trim();
-
-      let clientes;
-      try {
-        clientes = JSON.parse(localStorage.getItem("clientes")) || [];
-      } catch {
-        clientes = [];
-      }
-
-      if (clientes.some((c) => c.email === email)) {
-        alert("Este e-mail já está cadastrado como solicitante.");
-        return;
-      }
-
-      const novoCli = {
-        id: Date.now(),
-        nome,
-        email,
-        senha,
-        telefone,
-        foto,
-        tipo,
-      };
-
-      clientes.push(novoCli);
-      salvarSeguro("clientes", clientes);
-      salvarSeguro("usuarioLogado", novoCli);
-      localStorage.setItem("fotoPerfil", novoCli.foto);
-
-      alert("✅ Cadastro de cliente realizado com sucesso!");
+  // Excluir anúncio
+  document.getElementById("btnExcluir").addEventListener("click", () => {
+    if (confirm("Tem certeza que deseja excluir seu anúncio?")) {
+      let anunciosAtuais = JSON.parse(localStorage.getItem("anuncios")) || [];
+      const novos = anunciosAtuais.filter(a => !((a.id && a.id === usuario.id) || (a.email && a.email === usuario.email)));
+      localStorage.setItem("anuncios", JSON.stringify(novos));
+      alert("Anúncio removido!");
       window.location.href = "dashboard.html";
     }
   });
+
+  // botão voltar (se existir)
+  const btnVoltar = document.getElementById("voltarDashboard");
+  if (btnVoltar) {
+    btnVoltar.addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+  }
 });
