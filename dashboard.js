@@ -1,3 +1,5 @@
+// dashboard.js — feed principal (lista anúncios). Mantém foto, telefone e OAB integrados.
+
 document.addEventListener("DOMContentLoaded", () => {
   const imgPerfil = document.getElementById("imgPerfil");
   const inputFoto = document.getElementById("inputFoto");
@@ -14,17 +16,23 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  imgPerfil.src = usuarioLogado.foto || "imagens/default-user.png";
+  // Exibe foto do perfil (sincronizada)
+  imgPerfil.src = usuarioLogado.foto || localStorage.getItem("fotoPerfil") || "imagens/default-user.png";
 
   // Mostra botão Meus Anúncios apenas para advogados
-  if (usuarioLogado.tipo === "advogado") {
+  if (usuarioLogado.tipo === "advogado" && btnMeusAnuncios) {
     btnMeusAnuncios.style.display = "block";
+  } else if (btnMeusAnuncios) {
+    btnMeusAnuncios.style.display = "none";
   }
 
-  imgPerfil.addEventListener("click", (e) => {
-    e.stopPropagation();
-    menuPerfil.classList.toggle("active");
-  });
+  // Toggle menu
+  if (imgPerfil) {
+    imgPerfil.addEventListener("click", (e) => {
+      e.stopPropagation();
+      menuPerfil.classList.toggle("active");
+    });
+  }
 
   document.addEventListener("click", (e) => {
     if (!e.target.closest(".profile-container")) {
@@ -32,77 +40,88 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  btnMeusAnuncios.addEventListener("click", () => {
-    if (usuarioLogado.tipo === "advogado") {
-      window.location.href = "meus_anuncios_adv.html";
-    }
-  });
-
-  btnAlterarFoto.addEventListener("click", () => {
-    inputFoto.click();
-  });
-
-  // Atualizar foto de perfil
-  inputFoto.addEventListener("change", (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const novaFoto = e.target.result;
-      imgPerfil.src = novaFoto;
-      usuarioLogado.foto = novaFoto;
-      localStorage.setItem("usuarioLogado", JSON.stringify(usuarioLogado));
-
-      // Atualizar também no feed, se for advogado
+  // Navegação
+  if (btnMeusAnuncios) {
+    btnMeusAnuncios.addEventListener("click", () => {
       if (usuarioLogado.tipo === "advogado") {
+        window.location.href = "meus_anuncios_adv.html";
+      }
+    });
+  }
+  if (btnAlterarFoto) {
+    btnAlterarFoto.addEventListener("click", () => inputFoto.click());
+  }
+  if (btnLogout) {
+    btnLogout.addEventListener("click", () => {
+      if (confirm("Deseja realmente sair?")) {
+        localStorage.removeItem("usuarioLogado");
+        window.location.href = "index.html";
+      }
+    });
+  }
+
+  // Atualizar foto de perfil e sincronizar com anúncios
+  if (inputFoto) {
+    inputFoto.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const novaFoto = e.target.result;
+        imgPerfil.src = novaFoto;
+        usuarioLogado.foto = novaFoto;
+        localStorage.setItem("usuarioLogado", JSON.stringify(usuarioLogado));
+        localStorage.setItem("fotoPerfil", novaFoto);
+
+        // atualiza no array de anúncios se o e-mail bater
         let anuncios = JSON.parse(localStorage.getItem("anuncios")) || [];
         anuncios = anuncios.map(a => {
-          if (a.email === usuarioLogado.email) a.foto = novaFoto;
+          if (a && a.email === usuarioLogado.email) {
+            return { ...a, foto: novaFoto };
+          }
           return a;
         });
         localStorage.setItem("anuncios", JSON.stringify(anuncios));
-      }
 
-      montarFeed();
-    };
-    reader.readAsDataURL(file);
-  });
+        montarFeed();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
-  btnLogout.addEventListener("click", () => {
-    if (confirm("Deseja realmente sair?")) {
-      localStorage.removeItem("usuarioLogado");
-      window.location.href = "index.html";
-    }
-  });
-
+  // Monta o feed com todos os advogados cadastrados (apenas informações reduzidas)
   function montarFeed() {
     feed.innerHTML = "";
     const anuncios = JSON.parse(localStorage.getItem("anuncios")) || [];
-    const advs = anuncios.filter(a => a.tipo === "advogado");
+    const advs = anuncios.filter(a => a && a.tipo === "advogado");
+
+    if (advs.length === 0) {
+      feed.innerHTML = "<p>Nenhum advogado cadastrado ainda.</p>";
+      return;
+    }
 
     advs.forEach((anuncio) => {
       const card = document.createElement("div");
       card.classList.add("card-anuncio");
       card.innerHTML = `
         <img src="${anuncio.foto || 'imagens/default-user.png'}" alt="Foto do Advogado">
-        <div>
-          <h3>${anuncio.nome}</h3>
+        <div class="card-info">
+          <h3>${anuncio.nome || ''}</h3>
           <p><strong>Especialidade:</strong> ${anuncio.especialidade || 'Não informada'}</p>
           <p>${anuncio.portfolio || ''}</p>
-          <button class="btnWhats" onclick="window.open('https://wa.me/${(anuncio.telefone || '').replace(/\\D/g, '')}', '_blank')">Falar no WhatsApp</button>
         </div>
       `;
+
+      // Ao clicar no card salva o objeto completo (inclui telefone e registroOAB) e abre detalhes
       card.addEventListener("click", () => {
         localStorage.setItem("perfilSelecionado", JSON.stringify(anuncio));
         window.location.href = "posts_details.html";
       });
+
       feed.appendChild(card);
     });
-
-    if (advs.length === 0) {
-      feed.innerHTML = "<p>Nenhum advogado cadastrado ainda.</p>";
-    }
   }
 
+  // executa montagem
   montarFeed();
 });
