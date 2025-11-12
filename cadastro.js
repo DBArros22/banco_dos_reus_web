@@ -4,23 +4,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const formCadastro = document.getElementById("formCadastro");
   const voltarBtn = document.getElementById("voltarBtn");
 
-  // 🔹 Mostra campos conforme tipo selecionado
   tipoCadastro.addEventListener("change", () => {
     const tipo = tipoCadastro.value;
-    if (!tipo) {
-      camposExtras.innerHTML = "";
-      formCadastro.style.display = "none";
-    } else {
-      formCadastro.style.display = "block";
-      atualizarCamposExtras(tipo);
-    }
+    formCadastro.style.display = tipo ? "block" : "none";
+    atualizarCamposExtras(tipo);
   });
 
   function atualizarCamposExtras(tipo) {
     if (tipo === "advogado") {
       camposExtras.innerHTML = `
         <label for="telefone">Telefone:</label>
-        <input type="tel" id="telefone" placeholder="(XX) XXXXX-XXXX" required>
+        <input type="tel" id="telefone" inputmode="tel" placeholder="(XX) XXXXX-XXXX" required>
 
         <label for="especialidade">Especialidade:</label>
         <input type="text" id="especialidade" placeholder="Ex: Direito Civil" required>
@@ -37,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (tipo === "cliente") {
       camposExtras.innerHTML = `
         <label for="telefone">Telefone:</label>
-        <input type="tel" id="telefone" placeholder="(XX) XXXXX-XXXX" required>
+        <input type="tel" id="telefone" inputmode="tel" placeholder="(XX) XXXXX-XXXX" required>
 
         <label for="fotoCadastro">Foto:</label>
         <input type="file" id="fotoCadastro" accept="image/*">
@@ -47,12 +41,44 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 🔹 Botão voltar
-  voltarBtn.addEventListener("click", () => {
-    window.location.href = "index.html";
-  });
+  if (voltarBtn) {
+    voltarBtn.addEventListener("click", () => {
+      window.location.href = "index.html";
+    });
+  }
 
-  // 🔹 Tratamento do envio do formulário
+  // 🔹 Converte imagem para base64 compactada (máx. 200x200 px)
+  const getFotoDataURL = (file) => {
+    return new Promise((resolve) => {
+      if (!file) return resolve("imagens/default-user.png");
+      const img = new Image();
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          const size = 200;
+          canvas.width = size;
+          canvas.height = size;
+          ctx.drawImage(img, 0, 0, size, size);
+          resolve(canvas.toDataURL("image/jpeg", 0.7));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // 🔹 Salva com verificação de espaço
+  function salvarSeguro(chave, valor) {
+    try {
+      localStorage.setItem(chave, JSON.stringify(valor));
+    } catch (e) {
+      alert("⚠️ Espaço do armazenamento esgotado. Exclua cadastros antigos.");
+      console.warn(e);
+    }
+  }
+
   formCadastro.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -66,29 +92,18 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Lê foto se existir
     const fotoInput = document.getElementById("fotoCadastro");
-    const getFotoDataURL = (file) => {
-      return new Promise((resolve) => {
-        if (!file) return resolve(null);
-        const reader = new FileReader();
-        reader.onload = (ev) => resolve(ev.target.result);
-        reader.readAsDataURL(file);
-      });
-    };
-
-    const foto = fotoInput && fotoInput.files[0]
+    const foto = fotoInput && fotoInput.files.length > 0
       ? await getFotoDataURL(fotoInput.files[0])
       : "imagens/default-user.png";
 
     if (tipo === "advogado") {
-      const telefone = document.getElementById("telefone")?.value.trim() || "";
-      const especialidade = document.getElementById("especialidade")?.value.trim() || "";
-      const registroOAB = document.getElementById("registroOAB")?.value.trim() || "";
-      const portfolio = document.getElementById("portfolio")?.value.trim() || "";
+      const telefone = document.getElementById("telefone").value.trim();
+      const especialidade = document.getElementById("especialidade").value.trim();
+      const registroOAB = document.getElementById("registroOAB").value.trim();
+      const portfolio = document.getElementById("portfolio").value.trim();
 
-      let advogados = JSON.parse(localStorage.getItem("advogados")) || [];
-
+      let advogados = JSON.parse(localStorage.getItem("advogados") || "[]");
       if (advogados.some((a) => a.email === email)) {
         alert("Este e-mail já está cadastrado como advogado.");
         return;
@@ -104,40 +119,38 @@ document.addEventListener("DOMContentLoaded", () => {
         registroOAB,
         portfolio,
         foto,
-        tipo
+        tipo,
       };
 
-      // 🔸 Salva advogado
       advogados.push(novoAdv);
-      localStorage.setItem("advogados", JSON.stringify(advogados));
+      salvarSeguro("advogados", advogados);
 
-      // 🔸 Publica no feed automaticamente
-      let anuncios = JSON.parse(localStorage.getItem("anuncios")) || [];
-      const anuncioDoNovo = {
+      // Adiciona anúncio
+      let anuncios = JSON.parse(localStorage.getItem("anuncios") || "[]");
+      const anuncio = {
         id: novoAdv.id,
         nome: novoAdv.nome,
         especialidade: novoAdv.especialidade,
         portfolio: novoAdv.portfolio,
         email: novoAdv.email,
         foto: novoAdv.foto,
-        tipo: novoAdv.tipo
+        telefone: novoAdv.telefone,
+        registroOAB: novoAdv.registroOAB,
+        tipo: novoAdv.tipo,
       };
+      anuncios = anuncios.filter((a) => a.email !== novoAdv.email);
+      anuncios.push(anuncio);
+      salvarSeguro("anuncios", anuncios);
 
-      anuncios = anuncios.filter((a) => a && a.email !== novoAdv.email);
-      anuncios.push(anuncioDoNovo);
-      localStorage.setItem("anuncios", JSON.stringify(anuncios));
-
-      // 🔸 Login automático
-      localStorage.setItem("usuarioLogado", JSON.stringify(novoAdv));
+      salvarSeguro("usuarioLogado", novoAdv);
       localStorage.setItem("fotoPerfil", novoAdv.foto);
 
-      alert("✅ Cadastro de advogado realizado com sucesso!\nSeu anúncio foi publicado no feed.");
-      window.location.href = "dashboard.html";
+      alert("✅ Cadastro de advogado realizado com sucesso!");
+      setTimeout(() => (window.location.href = "dashboard.html"), 300);
+    } else {
+      const telefone = document.getElementById("telefone").value.trim();
 
-    } else if (tipo === "cliente") {
-      const telefone = document.getElementById("telefone")?.value.trim() || "";
-      let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
-
+      let clientes = JSON.parse(localStorage.getItem("clientes") || "[]");
       if (clientes.some((c) => c.email === email)) {
         alert("Este e-mail já está cadastrado como solicitante.");
         return;
@@ -150,18 +163,16 @@ document.addEventListener("DOMContentLoaded", () => {
         senha,
         telefone,
         foto,
-        tipo
+        tipo,
       };
 
       clientes.push(novoCli);
-      localStorage.setItem("clientes", JSON.stringify(clientes));
-      localStorage.setItem("usuarioLogado", JSON.stringify(novoCli));
+      salvarSeguro("clientes", clientes);
+      salvarSeguro("usuarioLogado", novoCli);
       localStorage.setItem("fotoPerfil", novoCli.foto);
 
       alert("✅ Cadastro de cliente realizado com sucesso!");
-      window.location.href = "dashboard.html";
-    } else {
-      alert("Selecione um tipo de cadastro.");
+      setTimeout(() => (window.location.href = "dashboard.html"), 300);
     }
   });
 });
